@@ -1,0 +1,7 @@
+{
+    "port": "COM5",
+    "board": "arduino:avr:nano",
+    "programmer": "arduino:avrisp",
+    "configuration": "cpu=atmega328",
+    "sketch": "OLTC_Simulator.ino"
+}
