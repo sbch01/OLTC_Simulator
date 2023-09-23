@@ -7,9 +7,6 @@
 
 #ifndef _OLTCSIMULATOR_H_
 #define _OLTCSIMULATOR_H_
-
-
-
 #include "Arduino.h"
 
 

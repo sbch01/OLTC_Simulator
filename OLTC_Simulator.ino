@@ -32,14 +32,10 @@ const uint8_t Cmd_e_stop = 16; //A2 input for emergency stop
 
 //==========================================================
 
-
+//Create MotorDriver object
 OLTC MotorDriver(BCD_0, BCD_1, BCD_2, BCD_3, BCD_4, BCD_5, Down_end, Up_end, MotionPin, Cmd_up, Cmd_down, Cmd_e_stop);
 
-
-
-
-
-// the setup function runs once when you press reset or power the board
+//Config Board for Task
 void setup() {
 
   pinMode(BCD_0, OUTPUT);
@@ -59,13 +55,14 @@ void setup() {
 
  //Pass parameter to object oltc motor driver
  // (Taps, Reverser, Time for chage the tap) 
- MotorDriver.getParameters(7,0,7000);
+ MotorDriver.getParameters(7,0,20000);
   
 }
 
-// the loop function runs over and over again forever
+//Actual simulation is here
 void loop() {
       
  MotorDriver.Monitoring();
+ delayMicroseconds(100);
   
 }

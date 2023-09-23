@@ -30,6 +30,8 @@ _UpTrigger = 0;  //Control byte for presed up command
 _DownTrigger = 0; //Control byte for pressed down command
 _Counter = 0; //Used for Motion time delay
 
+_BCDPinsUpdate(_uintToBCD(_CurrentTab));
+
 }
 
 //Method  pass parameters for OLTC Motor Driver
@@ -41,45 +43,29 @@ _MotionTime = MotionTime; //How long takes the to switch tab aprox 1000 = 1S
 
 }
 
-
+//===================================================================================
 //Main function That simulate MotorDriver of TapChanger
+//===================================================================================
 void OLTC::Monitoring(){
 
-    //Condition to start Up Command
-    if (!digitalRead(_Cmd_Up) && _DownTrigger == 0 && _CurrentTab < _LastTab) _UpTrigger =1; 
+  //Condition to start Up Command
+  if (!digitalRead(_Cmd_Up) && _DownTrigger == 0 && _CurrentTab < _LastTab) _UpTrigger =1; 
 
-    //Condition to start Down Command
-    if (!digitalRead(_Cmd_Down) && _UpTrigger == 0 && _CurrentTab > 1) _DownTrigger =1;
+  //Condition to start Down Command
+  if (!digitalRead(_Cmd_Down) && _UpTrigger == 0 && _CurrentTab > 1) _DownTrigger =1;
 
-    if (_UpTrigger){
+  if (_UpTrigger){ //Recived Up command
 
-        digitalWrite(_InMotion, HIGH);
-        _Counter++;
-        
-        if (_Counter == _MotionTime){
-          _CurrentTab++;
-          digitalWrite(_InMotion, LOW);
-          _Counter = 0;
-          _UpTrigger = 0;
-        }
-    }
+    digitalWrite(_InMotion, HIGH);
+    _Counter++;   
+  }
 
-    if (_DownTrigger){
+  if (_DownTrigger){ //Recived Down command
 
-        digitalWrite(_InMotion, HIGH);
-        _Counter++;
-
-        if (_Counter == _MotionTime){         
-          _CurrentTab--;
-          digitalWrite(_InMotion, LOW);
-          _Counter = 0;
-          _DownTrigger = 0;
-        }
-    }
-
-  //Update BCD Outputs
-  _BCDPinsUpdate(_uintToBCD(_CurrentTab));
-
+    digitalWrite(_InMotion, HIGH);
+    _Counter++;
+  }
+ 
   //Check For End Down condition
   if (_CurrentTab == 1){
     digitalWrite(_FirstTapEnd, HIGH);
@@ -95,13 +81,29 @@ void OLTC::Monitoring(){
   else{
     digitalWrite(_LastTapEnd, LOW);
   }
-   
-    
-} 
+
+  //If Motion time lapse
+  if(_Counter == _MotionTime) {
+
+    if (_DownTrigger) _CurrentTab--;
+    if (_UpTrigger) _CurrentTab++;
+
+    //Update every cycle BCD Ports 
+    _BCDPinsUpdate(_uintToBCD(_CurrentTab));
+
+    digitalWrite(_InMotion, LOW); //Turn Off InMotion LED RELAY
+    _UpTrigger = 0; //Zero flags for Up trigger condition
+    _DownTrigger = 0; //Zero flags for Down trigger condition
+    _Counter = 0; //Zero counter for motion timer
+    delay(500);
+
+  }
+}
+//==================================================================================
 
 
 //Update BCD Ports method
-//===============================================================================
+//==================================================================================
 void OLTC:: _BCDPinsUpdate (uint8_t PackBCD){
 
     digitalWrite(_bcd0, PackBCD & 0b00000001);
